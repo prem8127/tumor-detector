@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Scan — TumorScan AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="white" stroke-width="1.5"/>
+          <path d="M7 14h4l2-5 3 10 2-7 2 4h1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-title">TumorScan AI</div>
+        <div class="logo-sub">Lung · Pancreatic Detection</div>
+      </div>
+    </a>
+    <nav class="nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/patient" class="nav-link nav-link--active">New Scan</a>
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+    </nav>
+    <div class="status-pill"><span class="status-dot"></span>System Online</div>
+  </div>
+</header>
+
+<main class="page-main">
+  <div class="page-header">
+    <div class="page-breadcrumb"><a href="/">Home</a> / New Scan</div>
+    <h1 class="page-title">New Patient Scan</h1>
+    <p class="page-sub">Enter patient details, choose organ and model, then upload a CT scan.</p>
+  </div>
+
+  <div class="scan-layout">
+
+    <!-- ── LEFT: Form ──────────────────────────────────────────── -->
+    <div class="panel">
+
+      <!-- Patient Info -->
+      <div class="section-title">Patient Information</div>
+      <div class="form-grid">
+        <div class="form-field" style="grid-column:1/-1;">
+          <label class="field-label" for="pt-name">Full Name</label>
+          <input class="form-input" type="text" id="pt-name" placeholder="e.g. Ravi Kumar" autocomplete="off"/>
+        </div>
+        <div class="form-field">
+          <label class="field-label" for="pt-age">Age</label>
+          <input class="form-input" type="number" id="pt-age" placeholder="45" min="1" max="120"/>
+        </div>
+        <div class="form-field">
+          <label class="field-label" for="pt-gender">Gender</label>
+          <select class="form-input form-select" id="pt-gender">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-field" style="grid-column:1/-1;">
+          <label class="field-label" for="pt-date">Scan Date</label>
+          <input class="form-input" type="date" id="pt-date"/>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Organ Selection -->
+      <div class="section-title">Organ Target</div>
+      <div class="field-group">
+        <div class="toggle-group" id="organ-group">
+          <button class="toggle-btn active" data-val="lung" type="button">
+            <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+              <path d="M3 12c0-4 2-7 4-8l1 2c1-1 2-2 2-2s1 1 2 2l1-2c2 1 4 4 4 8-2 2-4 2-5 1l-1 2-1-2c-1 1-3 1-5-1z"/>
+            </svg>
+            Lung
+          </button>
+          <button class="toggle-btn" data-val="pancreas" type="button">
+            <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+              <ellipse cx="10" cy="10" rx="7" ry="4" transform="rotate(-20 10 10)"/>
+              <path d="M5 9c0 2 2 3 5 3" stroke-linecap="round"/>
+            </svg>
+            Pancreas
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Model Selection -->
+      <div class="section-title">AI Model</div>
+      <div class="model-selector" id="model-group">
+        <!-- data-val="svm" or data-val="cnn" — these are the ONLY valid values -->
+        <button class="model-option active" data-val="svm" type="button">
+          <span class="model-option-badge model-option-badge--ml">Machine Learning</span>
+          <div class="model-option-name">SVM + HOG/LBP</div>
+          <div class="model-option-desc">HOG gradient + LBP texture · 8,164 features · Fast &amp; interpretable</div>
+        </button>
+        <button class="model-option" data-val="cnn" type="button">
+          <span class="model-option-badge model-option-badge--dl">Deep Learning</span>
+          <div class="model-option-name">CNN / ResNet-50</div>
+          <div class="model-option-desc">Grad-CAM attention · Multi-scale features · Spatial activation maps</div>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Upload -->
+      <div class="section-title">CT Scan Upload</div>
+      <div class="field-group">
+        <div class="upload-zone" id="upload-zone" tabindex="0" role="button">
+          <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.bmp,.tiff" hidden/>
+          <div class="upload-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M16 4v18M8 12l8-8 8 8" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 26h20" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="upload-text">Drop CT scan here or click to browse</div>
+          <div class="upload-hint">PNG, JPG, BMP, TIFF · max 16 MB</div>
+        </div>
+      </div>
+
+      <button class="predict-btn" id="run-btn" disabled type="button">
+        <span>Run Analysis</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+      <p class="disclaimer">For research and educational purposes only. Not a substitute for clinical diagnosis.</p>
+    </div>
+
+    <!-- ── RIGHT: Preview ──────────────────────────────────────── -->
+    <div class="panel">
+      <div class="section-title">Preview</div>
+
+      <div class="preview-frame" id="preview-frame">
+        <div class="preview-empty" id="preview-empty">
+          <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+            <rect x="4" y="4" width="40" height="40" rx="4" stroke="var(--border-dark)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <circle cx="18" cy="19" r="5" stroke="var(--border-dark)" stroke-width="1.5"/>
+            <path d="M4 34l10-10 8 8 6-6 12 12" stroke="var(--border-dark)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <p>Upload a CT scan to preview</p>
+        </div>
+        <img id="preview-img" src="" alt="CT scan preview" hidden/>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-state" id="loading-state" hidden>
+        <div class="pulse-rings">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Analyzing CT scan…</div>
+        <div class="loading-sub" id="loading-sub">Preprocessing image</div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-panel" id="error-panel" hidden>
+        <div class="error-icon">!</div>
+        <div class="error-text" id="error-text">An error occurred.</div>
+      </div>
+
+      <!-- Patient card -->
+      <div class="patient-card" style="margin-top:14px;">
+        <div class="patient-avatar" id="pt-avatar">?</div>
+        <div>
+          <div class="patient-name" id="pt-name-display">—</div>
+          <div class="patient-meta" id="pt-meta-display">Fill in patient details above</div>
+        </div>
+      </div>
+
+      <!-- Selection summary -->
+      <div style="margin-top:14px;padding:14px;background:var(--off-white);
+                  border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:8px;
+                    font-size:11px;text-transform:uppercase;letter-spacing:0.07em;">
+          Current Selection
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span id="badge-organ"
+                style="background:var(--blue-pale);color:var(--blue);
+                       border:1px solid rgba(26,86,219,0.2);padding:3px 10px;
+                       border-radius:4px;font-size:12px;font-weight:600;">Lung</span>
+          <span id="badge-model"
+                style="background:#fffbeb;color:var(--warning);
+                       border:1px solid rgba(217,119,6,0.2);padding:3px 10px;
+                       border-radius:4px;font-size:12px;font-weight:600;">SVM</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>© 2025 TumorScan AI · For research use only</span>
+    <div class="footer-links"><a href="/">Home</a><a href="/dashboard">Dashboard</a></div>
+  </div>
+</footer>
+
+<script src="/static/js/patient.js"></script>
+</body>
+</html>

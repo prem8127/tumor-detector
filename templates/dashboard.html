@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — TumorScan AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="white" stroke-width="1.5"/>
+          <path d="M7 14h4l2-5 3 10 2-7 2 4h1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div><div class="logo-title">TumorScan AI</div><div class="logo-sub">Lung · Pancreatic Detection</div></div>
+    </a>
+    <nav class="nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/patient" class="nav-link">New Scan</a>
+      <a href="/dashboard" class="nav-link nav-link--active">Dashboard</a>
+    </nav>
+    <div class="status-pill"><span class="status-dot"></span>System Online</div>
+  </div>
+</header>
+
+<main class="page-main">
+  <div class="page-header">
+    <div class="page-breadcrumb"><a href="/">Home</a> / Dashboard</div>
+    <h1 class="page-title">Model Performance Dashboard</h1>
+    <p class="page-sub">Architecture details, feature pipeline, dataset overview and model diagnostics.</p>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Models Loaded</div>
+      <div class="metric-value" style="color:var(--success);" id="models-loaded">—</div>
+      <div class="metric-sub">SVM models in cache</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Feature Dimensions</div>
+      <div class="metric-value" style="color:var(--warning);">8,164</div>
+      <div class="metric-sub">HOG 8,100 + LBP 64</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Lung Classes</div>
+      <div class="metric-value" style="color:var(--blue);">3</div>
+      <div class="metric-sub">Normal · Benign · Malignant</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Pancreas Classes</div>
+      <div class="metric-value" style="color:var(--blue);">2</div>
+      <div class="metric-sub">Normal · Pancreatic Tumor</div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- Pancreas Confusion Matrix -->
+    <div class="panel">
+      <div class="panel-label">Pancreas SVM — Class Layout</div>
+      <p style="font-size:13px;color:var(--text-2);margin:10px 0 14px;">Binary classification: Normal vs Pancreatic Tumor. Run a scan to populate live values.</p>
+      <div class="cm-grid cm-2x2">
+        <div class="cm-cell cm-header"></div>
+        <div class="cm-cell cm-header">Pred: Normal</div>
+        <div class="cm-cell cm-header">Pred: Tumor</div>
+        <div class="cm-cell cm-header">Act: Normal</div>
+        <div class="cm-cell cm-tn" id="p-tn">TN</div>
+        <div class="cm-cell cm-fp" id="p-fp">FP</div>
+        <div class="cm-cell cm-header">Act: Tumor</div>
+        <div class="cm-cell cm-fn" id="p-fn">FN</div>
+        <div class="cm-cell cm-tp" id="p-tp">TP</div>
+      </div>
+    </div>
+
+    <!-- Lung Confusion Matrix -->
+    <div class="panel">
+      <div class="panel-label">Lung SVM — Class Layout</div>
+      <p style="font-size:13px;color:var(--text-2);margin:10px 0 14px;">3-class: Normal, Benign, Malignant. Based on IQ-OTH/NCCD CT dataset structure.</p>
+      <div class="cm-grid cm-3x3">
+        <div class="cm-cell cm-header"></div>
+        <div class="cm-cell cm-header">Pred: Normal</div>
+        <div class="cm-cell cm-header">Pred: Benign</div>
+        <div class="cm-cell cm-header">Pred: Malignant</div>
+        <div class="cm-cell cm-header">Act: Normal</div>
+        <div class="cm-cell cm-tn">TN</div>
+        <div class="cm-cell cm-fp">FP</div>
+        <div class="cm-cell cm-fp">FP</div>
+        <div class="cm-cell cm-header">Act: Benign</div>
+        <div class="cm-cell cm-fn">FN</div>
+        <div class="cm-cell cm-tp">TP</div>
+        <div class="cm-cell cm-fp">FP</div>
+        <div class="cm-cell cm-header">Act: Malignant</div>
+        <div class="cm-cell cm-fn">FN</div>
+        <div class="cm-cell cm-fn">FN</div>
+        <div class="cm-cell cm-tp">TP</div>
+      </div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="panel">
+      <div class="panel-label">Feature Extraction Pipeline</div>
+      <div class="arch-table">
+        <div class="arch-row"><span class="arch-key">Input image size</span><span class="arch-val">128 × 128 px (SVM) · 224 × 224 (CNN)</span></div>
+        <div class="arch-row"><span class="arch-key">Color space</span><span class="arch-val">Greyscale (SVM) · RGB (CNN)</span></div>
+        <div class="arch-row"><span class="arch-key">HOG orientations</span><span class="arch-val">9</span></div>
+        <div class="arch-row"><span class="arch-key">HOG pixels per cell</span><span class="arch-val">8 × 8</span></div>
+        <div class="arch-row"><span class="arch-key">HOG cells per block</span><span class="arch-val">2 × 2</span></div>
+        <div class="arch-row"><span class="arch-key">HOG features</span><span class="arch-val">8,100</span></div>
+        <div class="arch-row"><span class="arch-key">LBP radius / points</span><span class="arch-val">3 / 24</span></div>
+        <div class="arch-row"><span class="arch-key">LBP histogram bins</span><span class="arch-val">64</span></div>
+        <div class="arch-row"><span class="arch-key">Total SVM features</span><span class="arch-val">8,164</span></div>
+        <div class="arch-row"><span class="arch-key">SVM kernel</span><span class="arch-val">Linear (lung) · RBF (pancreas)</span></div>
+        <div class="arch-row"><span class="arch-key">Pancreas dim. reduction</span><span class="arch-val">PCA → 100 components</span></div>
+        <div class="arch-row"><span class="arch-key">CNN backbone</span><span class="arch-val">ResNet-50 (50 layers)</span></div>
+        <div class="arch-row"><span class="arch-key">CNN input normalisation</span><span class="arch-val">Pixel / 255 → [0, 1]</span></div>
+        <div class="arch-row"><span class="arch-key">Class weighting</span><span class="arch-val">Balanced (handles imbalance)</span></div>
+      </div>
+    </div>
+
+    <!-- Dataset Distribution -->
+    <div class="panel">
+      <div class="panel-label">Dataset Distribution</div>
+
+      <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">
+        Lung Dataset <span style="font-weight:400;color:var(--text-3);font-size:12px;">(3 classes)</span>
+      </p>
+      <div class="dist-block">
+        <div class="dist-label">Normal</div>
+        <div class="dist-track"><div class="dist-fill" style="width:33%;background:var(--success);"></div></div>
+        <div class="dist-pct">~33%</div>
+      </div>
+      <div class="dist-block">
+        <div class="dist-label">Benign</div>
+        <div class="dist-track"><div class="dist-fill" style="width:33%;background:var(--warning);"></div></div>
+        <div class="dist-pct">~33%</div>
+      </div>
+      <div class="dist-block">
+        <div class="dist-label">Malignant</div>
+        <div class="dist-track"><div class="dist-fill" style="width:33%;background:var(--danger);"></div></div>
+        <div class="dist-pct">~33%</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">
+        Pancreatic Dataset <span style="font-weight:400;color:var(--text-3);font-size:12px;">(2 classes)</span>
+      </p>
+      <div class="dist-block">
+        <div class="dist-label">Normal</div>
+        <div class="dist-track"><div class="dist-fill" style="width:55%;background:var(--success);"></div></div>
+        <div class="dist-pct">~55%</div>
+      </div>
+      <div class="dist-block">
+        <div class="dist-label">Pancreatic Tumor</div>
+        <div class="dist-track"><div class="dist-fill" style="width:45%;background:var(--danger);"></div></div>
+        <div class="dist-pct">~45%</div>
+      </div>
+      <p style="font-size:11px;color:var(--text-3);margin-top:14px;line-height:1.5;">
+        Balanced class weighting applied during SVM training to handle imbalance. Update percentages to match your actual dataset.
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>© 2025 TumorScan AI · For research use only</span>
+    <div class="footer-links"><a href="/">Home</a><a href="/patient">New Scan</a></div>
+  </div>
+</footer>
+
+<script>
+fetch("/health").then(r=>r.json()).then(d=>{
+  document.getElementById("models-loaded").textContent = d.cached_models + "/2";
+}).catch(()=>{
+  document.getElementById("models-loaded").textContent = "—";
+});
+</script>
+</body>
+</html>

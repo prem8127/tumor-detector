@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Results — TumorScan AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="white" stroke-width="1.5"/>
+          <path d="M7 14h4l2-5 3 10 2-7 2 4h1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div><div class="logo-title">TumorScan AI</div><div class="logo-sub">Lung · Pancreatic Detection</div></div>
+    </a>
+    <nav class="nav">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/patient" class="nav-link">New Scan</a>
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+    </nav>
+    <div class="status-pill"><span class="status-dot"></span>System Online</div>
+  </div>
+</header>
+
+<main class="page-main">
+  <div class="page-header">
+    <div class="page-breadcrumb">
+      <a href="/">Home</a> / <a href="/patient">New Scan</a> / Results
+    </div>
+    <h1 class="page-title">Scan Results</h1>
+    <p class="page-sub">AI analysis complete. Review the diagnosis, confidence scores, and heatmap below.</p>
+  </div>
+
+  <!-- No data state -->
+  <div id="no-data" class="no-data-state" hidden>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--border-dark)" stroke-width="1.5" style="margin-bottom:16px;">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p>No results found. <a href="/patient" style="color:var(--blue);font-weight:700;">Run a scan first →</a></p>
+  </div>
+
+  <!-- Results content -->
+  <div id="results-content" hidden>
+
+    <div class="results-top">
+      <!-- Verdict + Confidence + Probs -->
+      <div class="panel verdict-panel">
+        <div class="panel-label">Diagnosis Result</div>
+        <div class="verdict-badge" id="verdict-badge">—</div>
+        <div class="verdict-label"  id="verdict-label">—</div>
+        <div class="verdict-sub"    id="verdict-sub">—</div>
+        <div class="verdict-model-tag" id="verdict-model">—</div>
+
+        <div class="confidence-block">
+          <div class="confidence-header">
+            <span>Confidence Score</span>
+            <span class="confidence-score" id="conf-score">—</span>
+          </div>
+          <div class="confidence-track">
+            <div class="confidence-fill" id="conf-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="probs-block" id="probs-block"></div>
+      </div>
+
+      <!-- Patient Record + Actions -->
+      <div class="panel">
+        <div class="panel-label">Patient Record</div>
+        <div class="patient-row">
+          <div class="patient-avatar" id="res-avatar">?</div>
+          <div>
+            <div class="patient-name" id="res-name">—</div>
+            <div class="patient-meta" id="res-meta">—</div>
+          </div>
+        </div>
+        <div class="info-grid" id="res-info-grid"></div>
+
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="/patient" class="btn-ghost" style="font-size:13px;padding:10px 18px;">← New Scan</a>
+          <button class="btn-primary" id="download-btn" style="font-size:13px;padding:10px 18px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7,10 12,15 17,10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download PDF Report
+          </button>
+        </div>
+
+        <!-- Interpretation note -->
+        <div id="interpretation-note"></div>
+      </div>
+    </div>
+
+    <!-- ── Grand Heatmap Panel ─────────────────────────────────── -->
+    <div class="panel animate-up" id="heatmap-panel-section" style="margin-top:24px;">
+      <div class="panel-label" id="heatmap-panel-label">Diagnostic Heatmap — 5-Panel Feature Analysis</div>
+
+      <!-- Dynamic description (SVM vs CNN) -->
+      <div class="heatmap-description" id="heatmap-method-desc"
+           style="font-size:13px;color:var(--text-2);margin:10px 0 18px;line-height:1.7;
+                  background:var(--off-white);border:1px solid var(--border);
+                  border-radius:var(--radius);padding:12px 16px;
+                  border-left:3px solid var(--blue);">
+        Loading explanation…
+      </div>
+
+      <!-- Loading spinner while PNG streams from /get-heatmap -->
+      <div id="heatmap-spinner"
+           style="display:flex;align-items:center;justify-content:center;gap:16px;
+                  padding:36px;background:var(--surface);border-radius:var(--radius);
+                  border:1px solid var(--border);">
+        <div class="pulse-rings" style="width:44px;height:44px;position:relative;flex-shrink:0;">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy);">Generating heatmap…</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">This may take a few seconds</div>
+        </div>
+      </div>
+
+      <!-- Heatmap image — loaded via /get-heatmap (server-side file, not sessionStorage) -->
+      <img id="heatmap-img" src="" alt="Diagnostic Heatmap"
+           style="width:100%;border-radius:var(--radius);border:1px solid var(--border);
+                  box-shadow:0 4px 12px rgba(0,0,0,0.08);display:none;opacity:0;
+                  transition:opacity 0.5s ease;" />
+    </div>
+
+  </div><!-- /results-content -->
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>© 2025 TumorScan AI · For research use only</span>
+    <div class="footer-links">
+      <a href="/">Home</a><a href="/patient">New Scan</a><a href="/dashboard">Dashboard</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/static/js/results.js"></script>
+</body>
+</html>
